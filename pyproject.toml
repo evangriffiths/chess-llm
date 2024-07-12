@@ -6,8 +6,11 @@ authors = ["gabrielfior <fior.gbm@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.12,<3.13"
 chess = "^1.10.0"
+pyautogen = "^0.2.32"
+black = "^24.4.2"
+litellm = {extras = ["proxy"], version = "^1.41.19"}
 
 
 [build-system]

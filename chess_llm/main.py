@@ -1,11 +1,20 @@
+import dotenv
+
+from chess_llm.game import GameEngine
+
+dotenv.load_dotenv()
 import chess
 
-if __name__ == "__main__":
-    print('start')
+
+def old_main():
+    print("start")
     board = chess.Board()
     print(board)
+    m = board.push_san("e4")
+    # ToDo - Display with SVG
+
     #########
-    board.push_san("e4")
+    # board.push_san("e4")
     board.push_san("e5")
     board.push_san("Qh5")
     board.push_san("Nc6")
@@ -15,4 +24,10 @@ if __name__ == "__main__":
     print(board.is_checkmate())
     #########
     print(board.move_stack)
-    print('end')
+    print("end")
+
+
+if __name__ == "__main__":
+    print("start")
+    ge = GameEngine()
+    ge.start()
