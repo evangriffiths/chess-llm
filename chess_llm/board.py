@@ -1,36 +1,56 @@
+import sys
+
 import chess
+import chess.svg
+from PyQt5.QtCore import QTimer
+from PyQt5.QtSvg import QSvgWidget
+from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 
-class SingletonMeta(type):
+class ChessBoardViewer:
+    def __init__(self):
+        self.app = QApplication(sys.argv)
+        self.widget = ChessBoardWidget()
 
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        """
-        Possible changes to the value of the `__init__` argument do not affect
-        the returned instance.
-        """
-        if cls not in cls._instances:
-            instance = super().__call__(*args, **kwargs)
-            cls._instances[cls] = instance
-        return cls._instances[cls]
+    def show(self, board: chess.Board, duration: int):
+        self.widget.show_board(board=board)
+        if duration:
+            self.widget.close_after(duration)
+        self.app.exec_()
 
 
-class Board(metaclass=SingletonMeta):
-    board: chess.Board
-    made_move: bool = False
+class ChessBoardWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.svg_widget = QSvgWidget()
+        layout = QVBoxLayout()
+        layout.addWidget(self.svg_widget)
+        self.setLayout(layout)
+        self.setGeometry(300, 300, 500, 500)
+        self.setWindowTitle("Chess Board")
 
+    def show_board(self, board: chess.Board):
+        move = board.peek()
+        self.svg_widget.load(
+            chess.svg.board(
+                board,
+                fill={move.from_square: "gray"},
+            ).encode("utf-8")
+        )
+        self.show()
+
+    def close_after(self, duration: float):
+        seconds = int(duration * 1000)
+        QTimer.singleShot(seconds, self.close)
+
+
+class Board:
     def __init__(self) -> None:
         self.board = chess.Board()
+        self.viewer = ChessBoardViewer()
 
-    def check_made_move(self) -> bool:
-        if self.made_move:
-            self.made_move = False
-            return True
-        else:
-            return False
+    def push_move(self, move: str) -> None:
+        self.board.push_san(move)
 
-    def is_game_over(self) -> bool:
-        is_over = self.board.is_game_over()
-        print(f"check if game over {is_over}")
-        return is_over
+    def show(self, duration: float) -> None:
+        self.viewer.show(board=self.board, duration=duration)
